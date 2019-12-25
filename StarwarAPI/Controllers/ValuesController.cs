@@ -68,5 +68,33 @@ namespace StarwarAPI.Controllers
         }
 
 
+        [HttpGet]
+        [Route("~/api/getcharactername")]
+        public string GetCharacter()
+        {
+
+            string name = "";
+            string CS = ConfigurationManager.ConnectionStrings["starwarconnection"].ConnectionString;
+            using (SqlConnection con = new SqlConnection(CS))
+            {
+                SqlCommand cmd = new SqlCommand("select top 1 b.name,a.people_id,count(a.film_id) as cnt from films_characters a join people b on a.people_id=b.id group by  b.name,a.people_id order by cnt desc", con);
+                cmd.CommandType = CommandType.Text;
+                con.Open();
+
+                SqlDataReader rdr = cmd.ExecuteReader();
+                while (rdr.Read())
+                {
+
+
+                    name = rdr["name"].ToString();
+
+                }
+            }
+            return name;
+
+        }
+
+
+
     }
 }
