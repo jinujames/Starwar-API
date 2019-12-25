@@ -94,6 +94,32 @@ namespace StarwarAPI.Controllers
 
         }
 
+        [HttpGet]
+        [Route("~/api/getspecieslist")]
+        public List<species> GetSpecies()
+        {
+
+            List<species> species = new List<species>();
+            string CS = ConfigurationManager.ConnectionStrings["starwarconnection"].ConnectionString;
+            using (SqlConnection con = new SqlConnection(CS))
+            {
+                SqlCommand cmd = new SqlCommand("select b.name,count(species_id) as cnt from films_species a join    species b on a.species_id=b.id group by b.name", con);
+                cmd.CommandType = CommandType.Text;
+                con.Open();
+
+                SqlDataReader rdr = cmd.ExecuteReader();
+                while (rdr.Read())
+                {
+                    species obj = new species();
+
+                    obj.name = rdr["name"].ToString();
+                    obj.count = Convert.ToInt32(rdr["cnt"]);
+                    species.Add(obj);
+                }
+            }
+            return species;
+
+        }
 
 
     }
