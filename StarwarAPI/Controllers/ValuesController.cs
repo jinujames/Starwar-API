@@ -121,6 +121,39 @@ namespace StarwarAPI.Controllers
 
         }
 
+        [HttpGet]
+        [Route("~/api/getpilotlist")]
+        public List<pilots> Getpilotlist()
+        {
+
+            List<pilots> pilots = new List<pilots>();
+            string CS = ConfigurationManager.ConnectionStrings["starwarconnection"].ConnectionString;
+            using (SqlConnection con = new SqlConnection(CS))
+            {
+
+                String str = "select x.name as planetname,y.name as pilotname,s.name as speciesname,scnd.numberofvehicle,scnd.people_id,fst.film_id,films_planets.planet_id from (select film_id, people_id from films_characters ) as fst inner join(select people_id, count(vehicle_id) as numberofvehicle from vehicles_pilots group by people_id)  as scnd on fst.people_id = scnd.people_id join films_planets on fst.film_id = films_planets.film_id join planets x on x.id = films_planets.planet_id join people y on y.id = scnd.people_id join species_people z on z.people_id = y.id join species s on s.id = z.species_id order by films_planets.planet_id";
+                SqlCommand cmd = new SqlCommand(str, con);
+                cmd.CommandType = CommandType.Text;
+                con.Open();
+
+                SqlDataReader rdr = cmd.ExecuteReader();
+                while (rdr.Read())
+                {
+                    pilots obj = new pilots();
+
+                    obj.pilotname = rdr["pilotname"].ToString();
+                    obj.planetname = rdr["planetname"].ToString();
+                    obj.peopleid = Convert.ToInt32(rdr["people_id"]);
+                    obj.numberofvehicle = Convert.ToInt32(rdr["numberofvehicle"]);
+                    obj.speciesname = rdr["speciesname"].ToString();
+                    obj.planetid = Convert.ToInt32(rdr["planet_id"]);
+                    pilots.Add(obj);
+                }
+            }
+            return pilots;
+
+        }
+
 
     }
 }
