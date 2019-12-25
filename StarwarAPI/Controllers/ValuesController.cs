@@ -40,6 +40,33 @@ namespace StarwarAPI.Controllers
         public void Delete(int id)
         {
         }
+        [HttpGet]
+        [Route("~/api/getmoviename")]
+        public string GetMovie()
+        {
+
+            string title = "";
+            string CS = ConfigurationManager.ConnectionStrings["starwarconnection"].ConnectionString;
+            using (SqlConnection con = new SqlConnection(CS))
+            {
+                SqlCommand cmd = new SqlCommand("select top 1  a.title,a.id,count(b.people_id) as cnt from films a join films_characters b on a.id =b.film_id group by a.title,a.id order by  cnt desc", con);
+                cmd.CommandType = CommandType.Text;
+                con.Open();
+
+                SqlDataReader rdr = cmd.ExecuteReader();
+                while (rdr.Read())
+                {
+
+
+                    title = rdr["title"].ToString();
+
+                }
+            }
+            return title;
+
+
+        }
+
 
     }
 }
